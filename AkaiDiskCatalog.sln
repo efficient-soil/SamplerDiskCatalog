@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{70C30D15-4499-4618-97A3-0833965977F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkaiDiskCatalog.Core", "src\AkaiDiskCatalog.Core\AkaiDiskCatalog.Core.csproj", "{298583FD-A1ED-47EE-88A9-E36B318F3191}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkaiDiskCatalog.Data", "src\AkaiDiskCatalog.Data\AkaiDiskCatalog.Data.csproj", "{649647D3-69FA-479C-929B-AE2168A098DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkaiDiskCatalog.App", "src\AkaiDiskCatalog.App\AkaiDiskCatalog.App.csproj", "{11B6344B-0403-4CD7-906C-924A865C1D86}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{298583FD-A1ED-47EE-88A9-E36B318F3191}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{298583FD-A1ED-47EE-88A9-E36B318F3191}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{298583FD-A1ED-47EE-88A9-E36B318F3191}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{298583FD-A1ED-47EE-88A9-E36B318F3191}.Release|Any CPU.Build.0 = Release|Any CPU
+		{649647D3-69FA-479C-929B-AE2168A098DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{649647D3-69FA-479C-929B-AE2168A098DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{649647D3-69FA-479C-929B-AE2168A098DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{649647D3-69FA-479C-929B-AE2168A098DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11B6344B-0403-4CD7-906C-924A865C1D86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11B6344B-0403-4CD7-906C-924A865C1D86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11B6344B-0403-4CD7-906C-924A865C1D86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11B6344B-0403-4CD7-906C-924A865C1D86}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{298583FD-A1ED-47EE-88A9-E36B318F3191} = {70C30D15-4499-4618-97A3-0833965977F8}
+		{649647D3-69FA-479C-929B-AE2168A098DE} = {70C30D15-4499-4618-97A3-0833965977F8}
+		{11B6344B-0403-4CD7-906C-924A865C1D86} = {70C30D15-4499-4618-97A3-0833965977F8}
+	EndGlobalSection
+EndGlobal
