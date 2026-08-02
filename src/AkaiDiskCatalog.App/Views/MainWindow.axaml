@@ -1,0 +1,143 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AkaiDiskCatalog.App.ViewModels"
+        xmlns:models="using:AkaiDiskCatalog.App.Models"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="750"
+        x:Class="AkaiDiskCatalog.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="AKAI Disk Catalog"
+        Width="1200" Height="750">
+
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- Toolbar -->
+        <Grid Grid.Row="0" Margin="12,12,12,4" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Folder:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FolderPath}" IsReadOnly="True" Margin="0,0,8,0"/>
+            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                <Button Content="Browse..." Click="BrowseFolder_Click"/>
+                <Button Content="Rescan" Command="{Binding ScanFolderCommand}" IsEnabled="{Binding !IsScanning}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+                <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center"/>
+                <ProgressBar Width="160" Height="6" Minimum="0" Maximum="1" Value="{Binding ScanProgressFraction}"
+                             IsVisible="{Binding IsScanning}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Search / filter row -->
+        <Grid Grid.Row="1" Margin="12,4,12,8" ColumnDefinitions="*,Auto,Auto">
+            <TextBox Grid.Column="0" Watermark="Search by file, sample, or program name..." Text="{Binding SearchText}"/>
+            <ComboBox Grid.Column="1" Margin="8,0,0,0" Width="160"
+                      ItemsSource="{Binding KindFilters}" SelectedItem="{Binding SelectedKindFilter}"/>
+            <ComboBox Grid.Column="2" Margin="8,0,0,0" Width="260"
+                      ItemsSource="{Binding DiskFilters}" SelectedItem="{Binding SelectedDiskFilter}"/>
+        </Grid>
+
+        <!-- Main content -->
+        <TabControl Grid.Row="2" Margin="12,0,12,12">
+            <TabItem Header="Files">
+                <Grid ColumnDefinitions="2*,Auto,1*">
+                    <DataGrid Grid.Column="0"
+                              ItemsSource="{Binding Results}"
+                              SelectedItem="{Binding SelectedFile}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              GridLinesVisibility="Horizontal"
+                              CanUserSortColumns="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Disk" Binding="{Binding DiskFileName}" Width="140"/>
+                            <DataGridTextColumn Header="Volume" Binding="{Binding VolumeName}" Width="110"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150"/>
+                            <DataGridTextColumn Header="Kind" Binding="{Binding Kind}" Width="80"/>
+                            <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="80"/>
+                            <DataGridTextColumn Header="Size" Binding="{Binding SizeDisplay}" Width="80"/>
+                            <DataGridTextColumn Header="Rate" Binding="{Binding SampleRateDisplay}" Width="80"/>
+                            <DataGridTextColumn Header="Duration" Binding="{Binding DurationDisplay}" Width="80"/>
+                            <DataGridTextColumn Header="Loop" Binding="{Binding LoopDisplay}" Width="60"/>
+                            <DataGridTextColumn Header="Program" Binding="{Binding ProgramSummary}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <GridSplitter Grid.Column="1" Width="6"/>
+
+                    <Grid Grid.Column="2" RowDefinitions="Auto,*" Margin="8" DataContext="{Binding Detail}" x:DataType="models:SelectedFileDetail">
+                        <StackPanel Grid.Row="0" Spacing="2">
+                            <TextBlock Text="{Binding Source.Name}" FontWeight="Bold" FontSize="16"/>
+                            <TextBlock Text="{Binding Source.DiskFileName, StringFormat='Disk: {0}'}"/>
+                            <TextBlock Text="{Binding Source.SampleRateHz, StringFormat='Sample rate: {0} Hz'}" IsVisible="{Binding IsSample}"/>
+                            <TextBlock Text="{Binding Source.DurationMs, StringFormat='Duration: {0:F1} ms'}" IsVisible="{Binding IsSample}"/>
+                            <TextBlock Text="{Binding Source.RootKey, StringFormat='Root key: {0}'}" IsVisible="{Binding IsSample}"/>
+                            <TextBlock Text="{Binding Source.PlaybackMode, StringFormat='Playback mode: {0}'}" IsVisible="{Binding IsSample}"/>
+                            <TextBlock Text="{Binding Source.NumKeygroups, StringFormat='Keygroups: {0}'}" IsVisible="{Binding IsProgram}"/>
+                            <TextBlock Text="{Binding Source.MidiChannel, StringFormat='MIDI channel: {0}'}" IsVisible="{Binding IsProgram}"/>
+                            <TextBlock Text="{Binding Source.ParseWarning, StringFormat='⚠ {0}'}" Foreground="OrangeRed"
+                                       IsVisible="{Binding Source.HasWarning}"/>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,12,0,0">
+                            <TextBlock Grid.Row="0" Text="Loop points" FontWeight="Bold" IsVisible="{Binding IsSample}"/>
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding Loops}" AutoGenerateColumns="False" IsReadOnly="True"
+                                      IsVisible="{Binding IsSample}" MaxHeight="180" GridLinesVisibility="Horizontal">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="30"/>
+                                    <DataGridTextColumn Header="At" Binding="{Binding At}" Width="80"/>
+                                    <DataGridTextColumn Header="Length" Binding="{Binding LengthSamples}" Width="80"/>
+                                    <DataGridTextColumn Header="Time (ms)" Binding="{Binding TimeMs}" Width="80"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <TextBlock Grid.Row="2" Text="Program not decoded for S3000 keygroups" FontStyle="Italic"
+                                       IsVisible="{Binding ProgramKeygroupsUnparsed}"/>
+
+                            <StackPanel Grid.Row="3" IsVisible="{Binding IsProgram}" Spacing="6">
+                                <TextBlock Text="Keygroups" FontWeight="Bold"/>
+                                <DataGrid ItemsSource="{Binding Keygroups}" AutoGenerateColumns="False" IsReadOnly="True"
+                                          MaxHeight="160" GridLinesVisibility="Horizontal">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="30"/>
+                                        <DataGridTextColumn Header="Key range" Binding="{Binding KeyRange}" Width="80"/>
+                                        <DataGridTextColumn Header="Filter" Binding="{Binding Filter}" Width="60"/>
+                                        <DataGridTextColumn Header="VelXF" Binding="{Binding VelocityCrossfade}" Width="60"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <TextBlock Text="Velocity zones (sample map)" FontWeight="Bold" Margin="0,8,0,0"/>
+                                <DataGrid ItemsSource="{Binding VelocityZones}" AutoGenerateColumns="False" IsReadOnly="True"
+                                          MaxHeight="260" GridLinesVisibility="Horizontal">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="KG" Binding="{Binding KeygroupNumber}" Width="40"/>
+                                        <DataGridTextColumn Header="Vel" Binding="{Binding VelocityRange}" Width="70"/>
+                                        <DataGridTextColumn Header="Sample" Binding="{Binding SampleName}" Width="130"/>
+                                        <DataGridTextColumn Header="Tune(c/s)" Binding="{Binding CentsTune}" Width="70"/>
+                                        <DataGridTextColumn Header="Loud" Binding="{Binding Loudness}" Width="50"/>
+                                        <DataGridTextColumn Header="Filter" Binding="{Binding Filter}" Width="50"/>
+                                        <DataGridTextColumn Header="Pan" Binding="{Binding Pan}" Width="50"/>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Disks">
+                <DataGrid ItemsSource="{Binding Disks}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="220"/>
+                        <DataGridTextColumn Header="Volume" Binding="{Binding VolumeName}" Width="150"/>
+                        <DataGridTextColumn Header="Files" Binding="{Binding FileCount}" Width="70"/>
+                        <DataGridTextColumn Header="Density" Binding="{Binding Density}" Width="100"/>
+                        <DataGridTextColumn Header="Status" Binding="{Binding StatusText}" Width="260"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
