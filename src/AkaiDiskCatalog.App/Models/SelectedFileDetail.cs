@@ -81,6 +81,9 @@ public sealed class SelectedFileDetail
     public ObservableCollection<KeygroupRow> Keygroups { get; } = new();
     public ObservableCollection<VelocityZoneRow> VelocityZones { get; } = new();
 
+    public bool HasLoops => IsSample && Loops.Count > 0;
+    public bool HasNoLoops => IsSample && Loops.Count == 0;
+
     public SelectedFileDetail(FileSearchResult r)
     {
         Source = r;

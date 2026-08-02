@@ -1,0 +1,12 @@
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/bin/Debug/net10.0/AkaiDiskCatalog.Core.deps.json
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/bin/Debug/net10.0/AkaiDiskCatalog.Core.dll
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/bin/Debug/net10.0/AkaiDiskCatalog.Core.pdb
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/AkaiDiskCatalog.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/AkaiDiskCatalog.Core.AssemblyInfoInputs.cache
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/AkaiDiskCatalog.Core.AssemblyInfo.cs
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/AkaiDiskCatalog.Core.csproj.CoreCompileInputs.cache
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/AkaiDiskCatalog.Core.sourcelink.json
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/AkaiDiskCatalog.Core.dll
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/refint/AkaiDiskCatalog.Core.dll
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/AkaiDiskCatalog.Core.pdb
+/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.Core/obj/Debug/net10.0/ref/AkaiDiskCatalog.Core.dll

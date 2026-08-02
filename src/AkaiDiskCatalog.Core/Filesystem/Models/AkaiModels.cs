@@ -52,7 +52,7 @@ public sealed class AkaiSampleInfo
     public int SemitoneTune { get; set; }
     public string PlaybackMode { get; set; } = "";
     public int NumLoops { get; set; }
-    public List<AkaiLoopInfo> Loops { get; } = new();
+    public List<AkaiLoopInfo> Loops { get; set; } = new();
     public bool IsStereoPartner { get; set; }
 }
 
@@ -72,7 +72,7 @@ public sealed class AkaiProgramInfo
     public int OctaveOffset { get; set; }
     public bool KeygroupCrossfade { get; set; }
     public int NumKeygroups { get; set; }
-    public List<AkaiKeygroupInfo> Keygroups { get; } = new();
+    public List<AkaiKeygroupInfo> Keygroups { get; set; } = new();
     /// <summary>True if this is an S3000 program whose keygroup layout differs from S1000
     /// and was not deeply parsed (only the program header is populated).</summary>
     public bool KeygroupsUnparsed { get; set; }
@@ -86,7 +86,7 @@ public sealed class AkaiKeygroupInfo
     public int SemitoneTune { get; set; }
     public int Filter { get; set; }
     public bool VelocityCrossfade { get; set; }
-    public List<AkaiVelocityZoneInfo> VelocityZones { get; } = new();
+    public List<AkaiVelocityZoneInfo> VelocityZones { get; set; } = new();
 }
 
 public sealed class AkaiVelocityZoneInfo

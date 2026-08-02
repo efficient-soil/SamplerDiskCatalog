@@ -30,6 +30,5 @@ public sealed class FileRowViewModel
         "NOLOOP" => "no loop",
         _ => "loop"
     };
-    public string ProgramSummary => Source.NumKeygroups is { } n ? $"{n} keygroups" : "";
     public bool HasWarning => !string.IsNullOrEmpty(Source.ParseWarning);
 }
