@@ -13,6 +13,7 @@ public sealed class FileSearchResult
 
     public string Name { get; set; } = "";
     public string Kind { get; set; } = "";
+    public byte TypeByte { get; set; }
     public int SizeBytes { get; set; }
     public int StartBlock { get; set; }
     public string? ParseWarning { get; set; }

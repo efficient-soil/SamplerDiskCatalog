@@ -93,16 +93,40 @@
 
                     <GridSplitter Grid.Column="1" Width="12" Background="Transparent"/>
 
-                    <Border Grid.Column="2" Classes="card">
-                        <Panel>
+                    <Border Grid.Column="2" Classes="card" Padding="0">
+                        <Grid RowDefinitions="Auto,Auto,*">
+                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" Margin="14,14,14,0"
+                                  IsVisible="{Binding SelectedFile, Converter={x:Static convAv:ObjectConverters.IsNotNull}}">
+                                <TextBlock Grid.Column="0" Text="{Binding SelectedFile.Name}" Classes="detailTitle"
+                                           VerticalAlignment="Center" IsVisible="{Binding !IsEditingName}"/>
+                                <TextBox Grid.Column="0" Text="{Binding EditNameText}" MaxLength="12"
+                                         VerticalAlignment="Center" IsVisible="{Binding IsEditingName}"/>
+                                <Button Grid.Column="1" Classes="icon" Command="{Binding BeginRenameNameCommand}"
+                                        IsVisible="{Binding !IsEditingName}" Margin="8,0,0,0" ToolTip.Tip="Rename">
+                                    <PathIcon Data="{StaticResource IconEdit}"/>
+                                </Button>
+                                <Button Grid.Column="2" Classes="icon accent" Command="{Binding ConfirmRenameNameCommand}"
+                                        IsVisible="{Binding IsEditingName}" Margin="8,0,0,0" ToolTip.Tip="Save">
+                                    <PathIcon Data="{StaticResource IconCheck}"/>
+                                </Button>
+                                <Button Grid.Column="3" Classes="icon" Command="{Binding CancelRenameNameCommand}"
+                                        IsVisible="{Binding IsEditingName}" Margin="6,0,0,0" ToolTip.Tip="Cancel">
+                                    <PathIcon Data="{StaticResource IconClose}"/>
+                                </Button>
+                            </Grid>
+
+                            <TextBlock Grid.Row="1" Text="{Binding RenameMessage}" Classes="warningText" TextWrapping="Wrap"
+                                       Margin="14,6,14,0"
+                                       IsVisible="{Binding RenameMessage, Converter={x:Static convAv:ObjectConverters.IsNotNull}}"/>
+
+                            <Panel Grid.Row="2">
                             <TextBlock Text="Select a file to see its details" Classes="subtle"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                        IsVisible="{Binding SelectedFile, Converter={x:Static convAv:ObjectConverters.IsNull}}"/>
                             <ScrollViewer IsVisible="{Binding SelectedFile, Converter={x:Static convAv:ObjectConverters.IsNotNull}}">
                             <StackPanel DataContext="{Binding Detail}" x:DataType="models:SelectedFileDetail"
-                                        Spacing="2">
-                                <TextBlock Text="{Binding Source.Name}" Classes="detailTitle"/>
-                                <TextBlock Text="{Binding Source.DiskFileName, StringFormat='Disk: {0}'}" Classes="subtle" Margin="0,4,0,0"/>
+                                        Spacing="2" Margin="14,10,14,14">
+                                <TextBlock Text="{Binding Source.DiskFileName, StringFormat='Disk: {0}'}" Classes="subtle"/>
                                 <TextBlock Text="{Binding Source.SampleRateHz, StringFormat='Sample rate: {0} Hz'}" IsVisible="{Binding IsSample}" Margin="0,8,0,0"/>
                                 <TextBlock Text="{Binding Source.DurationMs, StringFormat='Duration: {0:F1} ms'}" IsVisible="{Binding IsSample}"/>
                                 <TextBlock Text="{Binding Source.RootKey, StringFormat='Root key: {0}'}" IsVisible="{Binding IsSample}"/>
@@ -162,7 +186,8 @@
                                 </StackPanel>
                             </StackPanel>
                             </ScrollViewer>
-                        </Panel>
+                            </Panel>
+                        </Grid>
                     </Border>
                 </Grid>
             </TabItem>

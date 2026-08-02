@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 
 namespace AkaiDiskCatalog.Core.Filesystem;
@@ -45,4 +46,51 @@ public static class AkaiCharset
         }
         return sb.ToString().TrimEnd(' ');
     }
+
+    public const int MaxNameLength = 12;
+
+    /// <summary>
+    /// Inverse of <see cref="Decode1000"/>. Uppercases the input, validates every character
+    /// maps to a valid S1000/S3000 code, and left-justifies/space-pads (code 10) to exactly
+    /// <paramref name="length"/> bytes. Rejects (never truncates or silently drops characters)
+    /// empty or over-length input, so a rename either fully succeeds or is cleanly refused.
+    /// </summary>
+    public static byte[] Encode1000(string name, int length = MaxNameLength)
+    {
+        string trimmed = (name ?? "").Trim();
+        if (trimmed.Length == 0)
+            throw new AkaiNameEncodeException("Name cannot be empty.");
+        if (trimmed.Length > length)
+            throw new AkaiNameEncodeException($"Name is too long ({trimmed.Length} characters, max {length}).");
+
+        var buf = new byte[length];
+        for (int i = 0; i < length; i++)
+        {
+            if (i >= trimmed.Length)
+            {
+                buf[i] = 10; // space
+                continue;
+            }
+
+            char c = char.ToUpperInvariant(trimmed[i]);
+            buf[i] = c switch
+            {
+                >= '0' and <= '9' => (byte)(c - '0'),
+                ' ' => 10,
+                >= 'A' and <= 'Z' => (byte)(11 + (c - 'A')),
+                '#' => 37,
+                '+' => 38,
+                '-' => 39,
+                '.' => 40,
+                _ => throw new AkaiNameEncodeException(
+                    $"Character '{trimmed[i]}' is not valid in an AKAI name (allowed: 0-9, space, A-Z, # + - .)."),
+            };
+        }
+        return buf;
+    }
+}
+
+public sealed class AkaiNameEncodeException : Exception
+{
+    public AkaiNameEncodeException(string message) : base(message) { }
 }

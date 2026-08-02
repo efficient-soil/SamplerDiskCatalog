@@ -109,6 +109,7 @@ public static class AkaiFloppyReader
                 SizeBytes = size,
                 StartBlock = start,
                 OsVersion = platform == AkaiPlatform.S900 ? "" : FormatOsVersion(osverRaw),
+                DirectoryEntryOffset = off,
             });
         }
         return result;
@@ -150,6 +151,54 @@ public static class AkaiFloppyReader
         if (written < outBuf.Length)
             Array.Resize(ref outBuf, written);
         return outBuf;
+    }
+
+    /// <summary>
+    /// Walks the same FAT chain as <see cref="ReadFileData"/> and overwrites the bytes at
+    /// logical file offset [<paramref name="logicalOffset"/>, +<paramref name="newBytes"/>.Length)
+    /// in place, splitting the write across a block boundary if the target range straddles
+    /// non-contiguous blocks. Returns false (without guaranteeing no partial write) if the
+    /// chain doesn't reach the requested range.
+    /// </summary>
+    public static bool WriteFileBytes(byte[] image, DiskDensity density, int startBlock, int sizeBytes, int logicalOffset, byte[] newBytes)
+    {
+        int rangeEnd = logicalOffset + newBytes.Length;
+        if (rangeEnd > sizeBytes) return false;
+
+        int fatEntries = density == DiskDensity.LowDensity800K ? FatEntriesLowDensity : FatEntriesHighDensity;
+        int fatOffset = VoldirEntriesInHeader * VoldirEntrySize;
+
+        int block = startBlock;
+        int logicalPos = 0;
+        int safety = fatEntries + 4;
+
+        while (logicalPos < rangeEnd && safety-- > 0)
+        {
+            if (block < 0 || block >= fatEntries) return false;
+            int blockOff = block * BlockSize;
+            if (blockOff + BlockSize > image.Length) return false;
+
+            int blockLogicalStart = logicalPos;
+            int blockLogicalEnd = logicalPos + BlockSize;
+
+            int ovStart = Math.Max(blockLogicalStart, logicalOffset);
+            int ovEnd = Math.Min(blockLogicalEnd, rangeEnd);
+            if (ovStart < ovEnd)
+            {
+                int srcOffsetInNewBytes = ovStart - logicalOffset;
+                int destOffsetInBlock = ovStart - blockLogicalStart;
+                Buffer.BlockCopy(newBytes, srcOffsetInNewBytes, image, blockOff + destOffsetInBlock, ovEnd - ovStart);
+            }
+
+            logicalPos = blockLogicalEnd;
+            if (logicalPos >= rangeEnd) break;
+
+            ushort fatVal = BitConverter.ToUInt16(image, fatOffset + block * 2);
+            if (fatVal == FatEndOfChain || fatVal == FatSystem || fatVal == FatFree) return logicalPos >= rangeEnd;
+            block = fatVal;
+        }
+
+        return logicalPos >= rangeEnd;
     }
 
     /// <summary>

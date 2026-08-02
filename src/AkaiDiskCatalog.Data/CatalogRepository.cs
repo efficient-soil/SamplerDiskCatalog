@@ -171,7 +171,7 @@ public sealed class CatalogRepository
             SELECT f.Id, d.FileName, d.SourcePath, v.Name, v.Platform, v.OsVersion,
                    f.Name, f.Kind, f.SizeBytes, f.StartBlock, f.ParseWarning,
                    f.SampleRateHz, f.DurationMs, f.RootKey, f.CentsTune, f.SemitoneTune, f.PlaybackMode, f.NumLoops,
-                   f.MidiChannel, f.KeyLow, f.KeyHigh, f.NumKeygroups, f.DetailsJson
+                   f.MidiChannel, f.KeyLow, f.KeyHigh, f.NumKeygroups, f.DetailsJson, f.TypeByte
             FROM Files f
             JOIN Volumes v ON v.Id = f.VolumeId
             JOIN Disks d ON d.Id = v.DiskId
@@ -214,6 +214,7 @@ public sealed class CatalogRepository
                 KeyHigh = r.IsDBNull(20) ? null : r.GetInt32(20),
                 NumKeygroups = r.IsDBNull(21) ? null : r.GetInt32(21),
                 DetailsJson = r.IsDBNull(22) ? null : r.GetString(22),
+                TypeByte = (byte)r.GetInt32(23),
             });
         }
         return results;

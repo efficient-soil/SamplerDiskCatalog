@@ -35,6 +35,10 @@ public sealed class AkaiFileEntry
     public int StartBlock { get; set; }
     public string OsVersion { get; set; } = "";
 
+    /// <summary>Absolute byte offset of this file's 24-byte directory record within the
+    /// linear disk image (header voldir area for S1000/S900, extended dir area for S3000).</summary>
+    public int DirectoryEntryOffset { get; set; }
+
     // Populated lazily depending on Kind:
     public AkaiSampleInfo? Sample { get; set; }
     public AkaiProgramInfo? Program { get; set; }

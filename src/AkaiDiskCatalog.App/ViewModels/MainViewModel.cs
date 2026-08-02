@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AkaiDiskCatalog.App.Models;
+using AkaiDiskCatalog.Core.Filesystem;
 using AkaiDiskCatalog.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -35,15 +36,37 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty] private string _folderPath = "";
     [ObservableProperty] private string _statusText = "Choose a folder to scan for .hfe / .img AKAI disk images.";
-    [ObservableProperty] private bool _isScanning;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(BeginRenameNameCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ConfirmRenameNameCommand))]
+    private bool _isScanning;
     [ObservableProperty] private double _scanProgressFraction;
 
     [ObservableProperty] private string _searchText = "";
     [ObservableProperty] private string _selectedKindFilter = "All";
     [ObservableProperty] private string _selectedDiskFilter = "All disks";
 
-    [ObservableProperty] private FileRowViewModel? _selectedFile;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanRenameSelectedFile))]
+    [NotifyCanExecuteChangedFor(nameof(BeginRenameNameCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ConfirmRenameNameCommand))]
+    private FileRowViewModel? _selectedFile;
     [ObservableProperty] private SelectedFileDetail? _detail;
+
+    [ObservableProperty] private bool _isEditingName;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ConfirmRenameNameCommand))]
+    private string _editNameText = "";
+    [ObservableProperty] private string? _renameMessage;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(BeginRenameNameCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ConfirmRenameNameCommand))]
+    private bool _isRenaming;
+
+    public bool CanRenameSelectedFile =>
+        SelectedFile != null &&
+        (SelectedFile.Kind == "Sample" || SelectedFile.Kind == "Program") &&
+        SelectedFile.Platform != "S900";
 
     public ObservableCollection<string> KindFilters { get; } = new(new[]
     {
@@ -64,7 +87,80 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSelectedFileChanged(FileRowViewModel? value)
     {
         Detail = value != null ? new SelectedFileDetail(value.Source) : null;
+        IsEditingName = false;
+        RenameMessage = null;
     }
+
+    private bool CanBeginRenameName() => !IsScanning && !IsRenaming && CanRenameSelectedFile;
+
+    [RelayCommand(CanExecute = nameof(CanBeginRenameName))]
+    private void BeginRenameName()
+    {
+        if (SelectedFile is null) return;
+        EditNameText = SelectedFile.Name;
+        RenameMessage = null;
+        IsEditingName = true;
+    }
+
+    [RelayCommand]
+    private void CancelRenameName()
+    {
+        IsEditingName = false;
+        RenameMessage = null;
+    }
+
+    private bool CanConfirmRenameName() =>
+        !IsRenaming && !IsScanning && SelectedFile != null && !string.IsNullOrWhiteSpace(EditNameText);
+
+    [RelayCommand(CanExecute = nameof(CanConfirmRenameName))]
+    private async Task ConfirmRenameNameAsync()
+    {
+        if (SelectedFile is null) return;
+        var src = SelectedFile.Source;
+        var newName = EditNameText;
+
+        IsRenaming = true;
+        RenameMessage = null;
+        try
+        {
+            var request = new RenameRequest(src.DiskSourcePath, src.StartBlock, src.TypeByte, newName);
+            var result = await Task.Run(() => AkaiDiskWriter.RenameFile(request));
+
+            if (!result.Success)
+            {
+                RenameMessage = DescribeFailure(result);
+                return;
+            }
+
+            _scanner.ScanFile(result.NewImagePath!);
+            RefreshDiskFilters();
+            RunSearch();
+            IsEditingName = false;
+
+            string refNote = result.PatchedReferenceCount > 0
+                ? $" Updated {result.PatchedReferenceCount} program reference(s) to the sample."
+                : "";
+            StatusText = $"Renamed \"{src.Name}\" - saved as a new disk image ({Path.GetFileName(result.NewImagePath)}); the original file was not modified.{refNote}";
+        }
+        catch (Exception ex)
+        {
+            RenameMessage = $"Rename failed: {ex.Message}";
+        }
+        finally
+        {
+            IsRenaming = false;
+        }
+    }
+
+    private static string DescribeFailure(RenameResult r) => r.FailureReason switch
+    {
+        RenameFailureReason.InvalidName => r.ErrorDetail ?? "Invalid name.",
+        RenameFailureReason.UnsupportedFile => r.ErrorDetail ?? "This file type can't be renamed.",
+        RenameFailureReason.UnsafeCrossReference => r.ErrorDetail ?? "Renaming this sample isn't safe on this disk.",
+        RenameFailureReason.FileNotFound => r.ErrorDetail ?? "File not found. Try rescanning.",
+        RenameFailureReason.IoError => $"Couldn't write the new disk image: {r.ErrorDetail}",
+        _ => r.ErrorDetail ?? "Rename failed.",
+    };
 
     [RelayCommand]
     private async Task ScanFolderAsync()

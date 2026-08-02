@@ -14,8 +14,9 @@ public static class AkaiProgramParser
 {
     public const int HeaderSize = 0x96;   // 150 bytes
     public const int KeygroupSize = 0x96; // 150 bytes
-    private const int VelZoneSize = 0x18; // 24 bytes
-    private const int VelZonesPerKg = 4;
+    public const int VelZoneSize = 0x18;  // 24 bytes
+    public const int VelZonesPerKg = 4;
+    public const int VelZonesBaseOffset = 34; // offset of velocity zones within a keygroup record
 
     private static readonly string[] VelzonePlaybackModes =
     {
@@ -77,7 +78,7 @@ public static class AkaiProgramParser
                 VelocityCrossfade = fullFileBytes[off + 30] != 0,
             };
 
-            int vzBase = off + 34;
+            int vzBase = off + VelZonesBaseOffset;
             for (int v = 0; v < VelZonesPerKg; v++)
             {
                 int vOff = vzBase + v * VelZoneSize;

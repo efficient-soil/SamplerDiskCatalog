@@ -51,4 +51,16 @@ public sealed class ScanService
             _repo.UpsertDisk(disk, fi.Length, fi.LastWriteTimeUtc);
         }
     }
+
+    /// <summary>
+    /// Decodes and catalogs a single file, without touching any other disk's catalog
+    /// entries. Used after a rename writes a brand-new .img so it shows up immediately
+    /// without a full folder rescan.
+    /// </summary>
+    public void ScanFile(string path)
+    {
+        var fi = new FileInfo(path);
+        var disk = DiskImageLoader.Load(path);
+        _repo.UpsertDisk(disk, fi.Length, fi.LastWriteTimeUtc);
+    }
 }

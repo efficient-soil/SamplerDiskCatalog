@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using AkaiDiskCatalog.Core.Filesystem;
 using AkaiDiskCatalog.Core.Filesystem.Models;
@@ -11,6 +12,43 @@ public static class DiskImageLoader
     private const long HighDensityBytes = 1600L * 1024; // 1,638,400
     private const long LowDensityBytes = 800L * 1024;   // 819,200
 
+    /// <summary>
+    /// Produces the raw linear block image for a .hfe or .img path - decoding HFE flux to
+    /// linear bytes via <see cref="HfeDecoder"/> if needed - without doing any AKAI
+    /// filesystem parsing. Shared by <see cref="Load"/> and by the disk writer (rename).
+    /// </summary>
+    public static (byte[] Image, DiskDensity Density, List<string> Warnings, int TotalSectorsExpected, int MissingSectorCount) LoadLinearImage(string path)
+    {
+        var warnings = new List<string>();
+        byte[] linearImage;
+        int totalSectorsExpected = 0;
+        int missingSectorCount = 0;
+        string ext = Path.GetExtension(path).ToLowerInvariant();
+
+        if (ext == ".hfe")
+        {
+            var decoded = HfeDecoder.Decode(path);
+            totalSectorsExpected = decoded.Cylinders * decoded.Heads * decoded.SectorsPerTrack;
+            missingSectorCount = decoded.MissingSectors.Count;
+            if (decoded.MissingSectors.Count > 0)
+            {
+                warnings.Add($"{decoded.MissingSectors.Count} of {totalSectorsExpected} sectors could not be decoded from the flux stream (bad/weak areas or unusual formatting). Missing regions are zero-filled.");
+            }
+            linearImage = decoded.ToLinearImage();
+        }
+        else if (ext == ".img")
+        {
+            linearImage = File.ReadAllBytes(path);
+        }
+        else
+        {
+            throw new NotSupportedException($"Unsupported file extension '{ext}'. Expected .hfe or .img.");
+        }
+
+        var density = ClassifyDensity(linearImage.Length, warnings);
+        return (linearImage, density, warnings, totalSectorsExpected, missingSectorCount);
+    }
+
     public static AkaiDiskImage Load(string path)
     {
         var disk = new AkaiDiskImage
@@ -21,30 +59,11 @@ public static class DiskImageLoader
 
         try
         {
-            byte[] linearImage;
-            string ext = Path.GetExtension(path).ToLowerInvariant();
-
-            if (ext == ".hfe")
-            {
-                var decoded = HfeDecoder.Decode(path);
-                disk.TotalSectorsExpected = decoded.Cylinders * decoded.Heads * decoded.SectorsPerTrack;
-                disk.MissingSectorCount = decoded.MissingSectors.Count;
-                if (decoded.MissingSectors.Count > 0)
-                {
-                    disk.Warnings.Add($"{decoded.MissingSectors.Count} of {disk.TotalSectorsExpected} sectors could not be decoded from the flux stream (bad/weak areas or unusual formatting). Missing regions are zero-filled.");
-                }
-                linearImage = decoded.ToLinearImage();
-            }
-            else if (ext == ".img")
-            {
-                linearImage = File.ReadAllBytes(path);
-            }
-            else
-            {
-                throw new NotSupportedException($"Unsupported file extension '{ext}'. Expected .hfe or .img.");
-            }
-
-            disk.Density = ClassifyDensity(linearImage.Length, disk.Warnings);
+            var (linearImage, density, warnings, totalSectorsExpected, missingSectorCount) = LoadLinearImage(path);
+            disk.Density = density;
+            disk.TotalSectorsExpected = totalSectorsExpected;
+            disk.MissingSectorCount = missingSectorCount;
+            disk.Warnings.AddRange(warnings);
 
             var volume = AkaiFloppyReader.ReadFloppyVolume(linearImage, disk.Density, disk.Warnings);
             disk.Volumes.Add(volume);
