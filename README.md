@@ -7,7 +7,11 @@ and full program keygroup / velocity-zone maps.
 
 ## Requirements
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (free, Microsoft)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (free, Microsoft) —
+  check with `dotnet --version`. If you have an older SDK only (e.g. 8.x) instead, either
+  install .NET 10 alongside it, or edit `TargetFramework` in the three `.csproj` files
+  under `src/` back down to a version you have installed (`net8.0`, `net9.0`, etc.) — the
+  code itself has no version-specific dependencies.
 - Windows 10+ or macOS 12+
 
 ## Running it
