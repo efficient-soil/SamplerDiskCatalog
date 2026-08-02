@@ -124,6 +124,7 @@
     <Setter Property="RowHeight" Value="30"/>
     <Setter Property="HeadersVisibility" Value="Column"/>
     <Setter Property="CanUserSortColumns" Value="False"/>
+    <Setter Property="CanUserResizeColumns" Value="True"/>
   </Style>
   <Style Selector="DataGridColumnHeader">
     <Setter Property="Background" Value="{DynamicResource HeaderBackgroundBrush}"/>

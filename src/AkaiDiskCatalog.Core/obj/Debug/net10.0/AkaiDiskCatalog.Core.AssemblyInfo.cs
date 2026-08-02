@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AkaiDiskCatalog.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85d6efd340ea4fabd11a7a8bb0d12e4c167a09ce")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+79170ab1ae9c1848f63859d9208b6ba3796eb26e")]
 [assembly: System.Reflection.AssemblyProductAttribute("AkaiDiskCatalog.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AkaiDiskCatalog.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

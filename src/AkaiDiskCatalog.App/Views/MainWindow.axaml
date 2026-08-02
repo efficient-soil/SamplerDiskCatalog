@@ -80,13 +80,13 @@
                                   IsReadOnly="True"
                                   CanUserSortColumns="True">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Disk" Binding="{Binding DiskFileName}" Width="160"/>
-                                <DataGridTextColumn Header="Type" Binding="{Binding Kind}" Width="88"/>
-                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150"/>
-                                <DataGridTextColumn Header="Size" Binding="{Binding SizeDisplay}" Width="84"/>
-                                <DataGridTextColumn Header="Rate" Binding="{Binding SampleRateDisplay}" Width="104"/>
-                                <DataGridTextColumn Header="Duration" Binding="{Binding DurationDisplay}" Width="92"/>
-                                <DataGridTextColumn Header="Playback mode" Binding="{Binding LoopDisplay}" Width="130"/>
+                                <DataGridTextColumn Header="Disk" Binding="{Binding DiskFileName}" Width="160" MinWidth="60"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding Kind}" Width="88" MinWidth="60"/>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150" MinWidth="60"/>
+                                <DataGridTextColumn Header="Size" Binding="{Binding SizeDisplay}" Width="84" MinWidth="60"/>
+                                <DataGridTextColumn Header="Rate" Binding="{Binding SampleRateDisplay}" Width="104" MinWidth="60"/>
+                                <DataGridTextColumn Header="Duration" Binding="{Binding DurationDisplay}" Width="92" MinWidth="60"/>
+                                <DataGridTextColumn Header="Playback mode" Binding="{Binding LoopDisplay}" Width="130" MinWidth="60"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </Border>
@@ -117,10 +117,10 @@
                                     <DataGrid ItemsSource="{Binding Loops}" AutoGenerateColumns="False" IsReadOnly="True"
                                               Height="200">
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="34" MinWidth="34"/>
-                                            <DataGridTextColumn Header="At" Binding="{Binding At}" Width="90" MinWidth="90"/>
-                                            <DataGridTextColumn Header="Length" Binding="{Binding LengthSamples}" Width="90" MinWidth="90"/>
-                                            <DataGridTextColumn Header="Time (ms)" Binding="{Binding TimeMs}" Width="100" MinWidth="100"/>
+                                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="34" MinWidth="30"/>
+                                            <DataGridTextColumn Header="At" Binding="{Binding At}" Width="90" MinWidth="40"/>
+                                            <DataGridTextColumn Header="Length" Binding="{Binding LengthSamples}" Width="90" MinWidth="40"/>
+                                            <DataGridTextColumn Header="Time (ms)" Binding="{Binding TimeMs}" Width="100" MinWidth="40"/>
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </StackPanel>
@@ -137,10 +137,10 @@
                                         <DataGrid ItemsSource="{Binding Keygroups}" AutoGenerateColumns="False" IsReadOnly="True"
                                                   Height="180">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="36" MinWidth="36"/>
-                                                <DataGridTextColumn Header="Key range" Binding="{Binding KeyRange}" Width="110" MinWidth="110"/>
-                                                <DataGridTextColumn Header="Filter" Binding="{Binding Filter}" Width="80" MinWidth="80"/>
-                                                <DataGridTextColumn Header="VelXF" Binding="{Binding VelocityCrossfade}" Width="80" MinWidth="80"/>
+                                                <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="36" MinWidth="30"/>
+                                                <DataGridTextColumn Header="Key range" Binding="{Binding KeyRange}" Width="110" MinWidth="40"/>
+                                                <DataGridTextColumn Header="Filter" Binding="{Binding Filter}" Width="80" MinWidth="40"/>
+                                                <DataGridTextColumn Header="VelXF" Binding="{Binding VelocityCrossfade}" Width="80" MinWidth="40"/>
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </StackPanel>
@@ -149,13 +149,13 @@
                                         <DataGrid ItemsSource="{Binding VelocityZones}" AutoGenerateColumns="False" IsReadOnly="True"
                                                   Height="280">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="KG" Binding="{Binding KeygroupNumber}" Width="64" MinWidth="64"/>
-                                                <DataGridTextColumn Header="Vel" Binding="{Binding VelocityRange}" Width="86" MinWidth="86"/>
-                                                <DataGridTextColumn Header="Sample" Binding="{Binding SampleName}" Width="150" MinWidth="150"/>
-                                                <DataGridTextColumn Header="Tune(c/s)" Binding="{Binding CentsTune}" Width="98" MinWidth="98"/>
-                                                <DataGridTextColumn Header="Loud" Binding="{Binding Loudness}" Width="78" MinWidth="78"/>
-                                                <DataGridTextColumn Header="Filter" Binding="{Binding Filter}" Width="76" MinWidth="76"/>
-                                                <DataGridTextColumn Header="Pan" Binding="{Binding Pan}" Width="72" MinWidth="72"/>
+                                                <DataGridTextColumn Header="KG" Binding="{Binding KeygroupNumber}" Width="64" MinWidth="30"/>
+                                                <DataGridTextColumn Header="Vel" Binding="{Binding VelocityRange}" Width="86" MinWidth="40"/>
+                                                <DataGridTextColumn Header="Sample" Binding="{Binding SampleName}" Width="150" MinWidth="40"/>
+                                                <DataGridTextColumn Header="Tune(c/s)" Binding="{Binding CentsTune}" Width="98" MinWidth="40"/>
+                                                <DataGridTextColumn Header="Loud" Binding="{Binding Loudness}" Width="78" MinWidth="40"/>
+                                                <DataGridTextColumn Header="Filter" Binding="{Binding Filter}" Width="76" MinWidth="40"/>
+                                                <DataGridTextColumn Header="Pan" Binding="{Binding Pan}" Width="72" MinWidth="40"/>
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </StackPanel>
@@ -171,11 +171,11 @@
                 <Border Classes="card" Padding="0">
                     <DataGrid ItemsSource="{Binding Disks}" AutoGenerateColumns="False" IsReadOnly="True">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="220"/>
-                            <DataGridTextColumn Header="Volume" Binding="{Binding VolumeName}" Width="150"/>
-                            <DataGridTextColumn Header="Files" Binding="{Binding FileCount}" Width="70"/>
-                            <DataGridTextColumn Header="Density" Binding="{Binding Density}" Width="100"/>
-                            <DataGridTemplateColumn Header="Status" Width="260">
+                            <DataGridTextColumn Header="File" Binding="{Binding FileName}" Width="220" MinWidth="60"/>
+                            <DataGridTextColumn Header="Volume" Binding="{Binding VolumeName}" Width="150" MinWidth="60"/>
+                            <DataGridTextColumn Header="Files" Binding="{Binding FileCount}" Width="70" MinWidth="50"/>
+                            <DataGridTextColumn Header="Density" Binding="{Binding Density}" Width="100" MinWidth="60"/>
+                            <DataGridTemplateColumn Header="Status" Width="260" MinWidth="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate x:DataType="models:DiskRowInfo">
                                         <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center"
