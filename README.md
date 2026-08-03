@@ -53,7 +53,38 @@ The published app is in `src/AkaiDiskCatalog.App/bin/Release/net8.0/<rid>/publis
   since the last scan. The database lives at:
   - macOS: `~/Library/Application Support/AkaiDiskCatalog/catalog.db`
   - Windows: `%LOCALAPPDATA%\AkaiDiskCatalog\catalog.db`
-- **AkaiDiskCatalog.App** — Avalonia 11 MVVM desktop UI (CommunityToolkit.Mvvm).
+- **AkaiDiskCatalog.App** — Avalonia 11 MVVM desktop UI (CommunityToolkit.Mvvm). Read-only
+  browsing plus a scoped rename feature that writes back into a copy of the disk image
+  (see "Renaming samples & programs" below).
+
+## Renaming samples & programs
+
+You can rename a Sample or Program directly from the detail pane (the pencil icon next to
+its name). This isn't just a catalog label — the new name is written into the actual disk
+image, in every place a name for that file exists:
+
+- The 12-byte directory entry name (what disk browsers show).
+- The separate 12-byte "RAM name" embedded in the file's own data block.
+- For samples: every *other* program on the same disk that references that sample by name
+  inside its keygroups/velocity zones is patched too, so renamed samples don't silently
+  break the programs that use them.
+
+**Your original file is never modified.** A rename always writes a brand-new `.img` file
+next to the source (e.g. `MY DISK.hfe` → `MY DISK.img`, or `MY DISK (1).img` if that name's
+taken), and that new file is automatically added to your catalog. If the source was a
+`.hfe`, it's fully decoded and converted to `.img` as part of saving — `.hfe`'s bitstream
+format has no write path in this app, so edited disks are always saved as `.img` going
+forward.
+
+Rename is only offered where it can be done safely:
+- **S900 files aren't renameable** in this version.
+- **Renaming a sample is blocked if the disk contains any S3000 program** — S3000 keygroup
+  layouts aren't decoded (see below), so this app can't find and patch sample references
+  inside them, and a rename that misses a reference would leave the disk inconsistent.
+- Renaming a **program** has no such restriction (nothing else references a program by
+  name), so it's always available for S1000 and S3000.
+- Names are limited to 12 characters from AKAI's own character set (`0-9`, space, `A-Z`,
+  `# + - .`); anything else is rejected with an explanation rather than silently truncated.
 
 ## Known limitations (v1)
 
@@ -68,6 +99,9 @@ The published app is in `src/AkaiDiskCatalog.App/bin/Release/net8.0/<rid>/publis
   real-world testing than the 1.6MB high-density path (which was validated byte-for-byte
   against `akaiutil` output on a real disk).
 - No audio playback or WAV export in this version (by request — metadata browsing only).
+- Renaming is scoped to what can be done safely today — see "Renaming samples & programs"
+  above for exactly what's supported (no S900, sample rename blocked on disks with S3000
+  programs) and why.
 
 ## Extending it
 
