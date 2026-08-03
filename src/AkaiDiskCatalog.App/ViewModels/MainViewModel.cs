@@ -70,7 +70,7 @@ public partial class MainViewModel : ViewModelBase
 
     public ObservableCollection<string> KindFilters { get; } = new(new[]
     {
-        "All", "Sample", "Program", "Drum", "Effects", "QuickLook", "TakeList",
+        "All", "Favorites", "Sample", "Program", "Drum", "Effects", "QuickLook", "TakeList",
         "Multi", "System", "CdSetup", "OverallSettings900", "Fixup900", "MemoryImage900"
     });
 
@@ -163,6 +163,17 @@ public partial class MainViewModel : ViewModelBase
     };
 
     [RelayCommand]
+    private void ToggleFavorite(FileRowViewModel? row)
+    {
+        if (row is null || !row.CanFavorite) return;
+        row.IsFavorite = !row.IsFavorite;
+        _repo.SetFavorite(row.Source.DiskSourcePath, row.Source.Name, row.Source.Kind, row.IsFavorite);
+
+        if (SelectedKindFilter == "Favorites" && !row.IsFavorite)
+            Results.Remove(row);
+    }
+
+    [RelayCommand]
     private async Task ScanFolderAsync()
     {
         if (string.IsNullOrWhiteSpace(FolderPath) || !Directory.Exists(FolderPath))
@@ -226,6 +237,6 @@ public partial class MainViewModel : ViewModelBase
     {
         Results.Clear();
         foreach (var r in _repo.Search(SearchText, SelectedKindFilter, SelectedDiskFilter))
-            Results.Add(new FileRowViewModel(r));
+            Results.Add(new FileRowViewModel(r, ToggleFavoriteCommand));
     }
 }

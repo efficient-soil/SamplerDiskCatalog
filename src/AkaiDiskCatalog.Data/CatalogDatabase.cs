@@ -94,6 +94,16 @@ public static class CatalogDatabase
             CREATE INDEX IF NOT EXISTS IX_Files_Kind ON Files(Kind);
             CREATE INDEX IF NOT EXISTS IX_Volumes_DiskId ON Volumes(DiskId);
             CREATE INDEX IF NOT EXISTS IX_Files_VolumeId ON Files(VolumeId);
+
+            -- Favorites are keyed by disk path + file name/kind rather than Files.Id,
+            -- since UpsertDisk deletes and re-inserts all Files/Volumes rows on every
+            -- rescan (Files.Id is not stable across rescans, but a file's name is).
+            CREATE TABLE IF NOT EXISTS Favorites (
+                DiskSourcePath TEXT NOT NULL,
+                Name           TEXT NOT NULL,
+                Kind           TEXT NOT NULL,
+                PRIMARY KEY (DiskSourcePath, Name, Kind)
+            );
             """;
         cmd.ExecuteNonQuery();
 

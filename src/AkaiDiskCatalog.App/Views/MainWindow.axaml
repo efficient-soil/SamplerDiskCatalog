@@ -81,6 +81,24 @@
                                   IsReadOnly="True"
                                   CanUserSortColumns="True">
                             <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="★" Width="40" MinWidth="40" CanUserResize="False">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate x:DataType="models:FileRowViewModel">
+                                            <Button Classes="icon" Padding="4" HorizontalAlignment="Center"
+                                                    IsVisible="{Binding CanFavorite}"
+                                                    Command="{Binding ToggleFavoriteCommand}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip.Tip="Toggle favorite">
+                                                <Panel>
+                                                    <PathIcon Data="{StaticResource IconStar}" Width="15" Height="15"
+                                                              Foreground="#E8B84B" IsVisible="{Binding IsFavorite}"/>
+                                                    <PathIcon Data="{StaticResource IconStarOutline}" Width="15" Height="15"
+                                                              Foreground="{DynamicResource SubtleTextBrush}" IsVisible="{Binding !IsFavorite}"/>
+                                                </Panel>
+                                            </Button>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Disk" Binding="{Binding DiskFileName}" Width="160" MinWidth="60"/>
                                 <DataGridTextColumn Header="Type" Binding="{Binding Kind}" Width="88" MinWidth="60"/>
                                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150" MinWidth="60"/>

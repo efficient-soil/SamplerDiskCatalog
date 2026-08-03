@@ -27,6 +27,9 @@ public sealed class CatalogRepository
 
     public void DeleteDisk(string sourcePath)
     {
+        // Deliberately does NOT touch Favorites: a disk dropping out of the catalog
+        // (different folder scanned, drive briefly unavailable, etc.) shouldn't forget
+        // favorites - they should only go away via an explicit unfavorite.
         using var cmd = _conn.CreateCommand();
         cmd.CommandText = "DELETE FROM Disks WHERE SourcePath = $p";
         cmd.Parameters.AddWithValue("$p", sourcePath);
@@ -49,6 +52,7 @@ public sealed class CatalogRepository
                     if (!keepPaths.Contains(p)) toDelete.Add(p);
                 }
             }
+            // Favorites are deliberately left untouched here - see DeleteDisk.
             foreach (var p in toDelete)
             {
                 using var del = _conn.CreateCommand();
@@ -59,6 +63,26 @@ public sealed class CatalogRepository
             }
         }
         tx.Commit();
+    }
+
+    public void SetFavorite(string diskSourcePath, string name, string kind, bool isFavorite)
+    {
+        using var cmd = _conn.CreateCommand();
+        if (isFavorite)
+        {
+            cmd.CommandText = """
+                INSERT INTO Favorites (DiskSourcePath, Name, Kind) VALUES ($path, $name, $kind)
+                ON CONFLICT (DiskSourcePath, Name, Kind) DO NOTHING;
+                """;
+        }
+        else
+        {
+            cmd.CommandText = "DELETE FROM Favorites WHERE DiskSourcePath = $path AND Name = $name AND Kind = $kind;";
+        }
+        cmd.Parameters.AddWithValue("$path", diskSourcePath);
+        cmd.Parameters.AddWithValue("$name", name);
+        cmd.Parameters.AddWithValue("$kind", kind);
+        cmd.ExecuteNonQuery();
     }
 
     public void UpsertDisk(AkaiDiskImage disk, long fileSizeBytes, DateTime fileModifiedUtc)
@@ -171,19 +195,24 @@ public sealed class CatalogRepository
             SELECT f.Id, d.FileName, d.SourcePath, v.Name, v.Platform, v.OsVersion,
                    f.Name, f.Kind, f.SizeBytes, f.StartBlock, f.ParseWarning,
                    f.SampleRateHz, f.DurationMs, f.RootKey, f.CentsTune, f.SemitoneTune, f.PlaybackMode, f.NumLoops,
-                   f.MidiChannel, f.KeyLow, f.KeyHigh, f.NumKeygroups, f.DetailsJson, f.TypeByte
+                   f.MidiChannel, f.KeyLow, f.KeyHigh, f.NumKeygroups, f.DetailsJson, f.TypeByte,
+                   (fav.Name IS NOT NULL) AS IsFavorite
             FROM Files f
             JOIN Volumes v ON v.Id = f.VolumeId
             JOIN Disks d ON d.Id = v.DiskId
+            LEFT JOIN Favorites fav ON fav.DiskSourcePath = d.SourcePath AND fav.Name = f.Name AND fav.Kind = f.Kind
             WHERE ($search IS NULL OR f.Name LIKE $search OR v.Name LIKE $search OR d.FileName LIKE $search)
               AND ($kind IS NULL OR f.Kind = $kind)
               AND ($disk IS NULL OR d.SourcePath = $disk)
+              AND ($favOnly = 0 OR fav.Name IS NOT NULL)
             ORDER BY d.FileName, v.Name, f.StartBlock
             LIMIT $limit;
             """;
+        bool favOnly = kindFilter == "Favorites";
         cmd.Parameters.AddWithValue("$search", string.IsNullOrWhiteSpace(searchText) ? DBNull.Value : $"%{searchText.Trim()}%");
-        cmd.Parameters.AddWithValue("$kind", string.IsNullOrWhiteSpace(kindFilter) || kindFilter == "All" ? DBNull.Value : kindFilter);
+        cmd.Parameters.AddWithValue("$kind", string.IsNullOrWhiteSpace(kindFilter) || kindFilter == "All" || favOnly ? DBNull.Value : kindFilter);
         cmd.Parameters.AddWithValue("$disk", string.IsNullOrWhiteSpace(diskFilter) || diskFilter == "All disks" ? DBNull.Value : diskFilter);
+        cmd.Parameters.AddWithValue("$favOnly", favOnly ? 1 : 0);
         cmd.Parameters.AddWithValue("$limit", limit);
 
         using var r = cmd.ExecuteReader();
@@ -215,6 +244,7 @@ public sealed class CatalogRepository
                 NumKeygroups = r.IsDBNull(21) ? null : r.GetInt32(21),
                 DetailsJson = r.IsDBNull(22) ? null : r.GetString(22),
                 TypeByte = (byte)r.GetInt32(23),
+                IsFavorite = r.GetInt64(24) != 0,
             });
         }
         return results;

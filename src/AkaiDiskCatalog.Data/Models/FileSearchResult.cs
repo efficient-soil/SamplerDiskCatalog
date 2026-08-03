@@ -18,6 +18,7 @@ public sealed class FileSearchResult
     public int StartBlock { get; set; }
     public string? ParseWarning { get; set; }
     public bool HasWarning => !string.IsNullOrEmpty(ParseWarning);
+    public bool IsFavorite { get; set; }
 
     public int? SampleRateHz { get; set; }
     public double? DurationMs { get; set; }

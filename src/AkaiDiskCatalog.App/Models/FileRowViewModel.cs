@@ -1,15 +1,20 @@
+using System.Windows.Input;
 using AkaiDiskCatalog.Data.Models;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace AkaiDiskCatalog.App.Models;
 
-public sealed class FileRowViewModel
+public sealed partial class FileRowViewModel : ObservableObject
 {
-    public FileRowViewModel(FileSearchResult r)
+    public FileRowViewModel(FileSearchResult r, ICommand toggleFavoriteCommand)
     {
         Source = r;
+        _isFavorite = r.IsFavorite;
+        ToggleFavoriteCommand = toggleFavoriteCommand;
     }
 
     public FileSearchResult Source { get; }
+    public ICommand ToggleFavoriteCommand { get; }
 
     public string DiskFileName => Source.DiskFileName;
     public string VolumeName => Source.VolumeName;
@@ -31,4 +36,8 @@ public sealed class FileRowViewModel
         _ => "loop"
     };
     public bool HasWarning => !string.IsNullOrEmpty(Source.ParseWarning);
+
+    public bool CanFavorite => Kind == "Program";
+
+    [ObservableProperty] private bool _isFavorite;
 }
