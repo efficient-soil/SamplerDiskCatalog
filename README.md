@@ -40,7 +40,7 @@ dotnet publish src/AkaiDiskCatalog.App -c Release -r osx-x64 --self-contained
 dotnet publish src/AkaiDiskCatalog.App -c Release -r win-x64 --self-contained
 ```
 
-The published app is in `src/AkaiDiskCatalog.App/bin/Release/net8.0/<rid>/publish/`.
+The published app is in `src/AkaiDiskCatalog.App/bin/Release/net10.0/<rid>/publish/`.
 
 ## How it works
 
