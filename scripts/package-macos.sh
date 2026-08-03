@@ -23,6 +23,7 @@ mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources"
 
 cp -R "$PUBLISH_DIR"/. "$APP_BUNDLE/Contents/MacOS/"
 chmod +x "$APP_BUNDLE/Contents/MacOS/AkaiDiskCatalog.App"
+cp "$PROJECT/Assets/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
 
 cat > "$APP_BUNDLE/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -37,6 +38,8 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<PLIST
     <string>$BUNDLE_ID</string>
     <key>CFBundleExecutable</key>
     <string>AkaiDiskCatalog.App</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
