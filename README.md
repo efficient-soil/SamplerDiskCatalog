@@ -76,3 +76,7 @@ heavily commented with the source struct layouts, so adding S3000 keygroup or S9
 support later is a matter of adding another parser class alongside `AkaiProgramParser`/
 `AkaiSampleParser` — no changes needed to the HFE decoder, filesystem reader, database
 schema, or UI.
+
+## License
+
+MIT — see [LICENSE](LICENSE). Free to use, modify, and distribute.
