@@ -2,12 +2,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="AkaiDiskCatalog.App.App"
              xmlns:local="using:AkaiDiskCatalog.App"
+             Name="Sampler Disk Catalog"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
+
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="About Sampler Disk Catalog" Click="AboutMenuItem_Click"/>
+        </NativeMenu>
+    </NativeMenu.Menu>
 
     <Application.Styles>
         <FluentTheme />

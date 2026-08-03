@@ -9,7 +9,7 @@
         mc:Ignorable="d" d:DesignWidth="1240" d:DesignHeight="780"
         x:Class="AkaiDiskCatalog.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Title="AKAI Disk Catalog"
+        Title="Sampler Disk Catalog"
         Width="1240" Height="780" MinWidth="960" MinHeight="600"
         WindowStartupLocation="CenterScreen">
 
@@ -29,7 +29,7 @@
                 <PathIcon Data="{StaticResource IconDisk}" Width="22" Height="22"
                           Foreground="{DynamicResource AppAccentBrush}"/>
                 <StackPanel Spacing="0">
-                    <TextBlock Text="AKAI Disk Catalog" Classes="appTitle"/>
+                    <TextBlock Text="Sampler Disk Catalog" Classes="appTitle"/>
                     <TextBlock Text="S1000 / S900 diskette metadata browser" Classes="appSubtitle"/>
                 </StackPanel>
             </StackPanel>

@@ -32,4 +32,13 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
+
+    private void AboutMenuItem_Click(object? sender, System.EventArgs e)
+    {
+        var about = new AboutWindow();
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow: { } owner })
+            about.ShowDialog(owner);
+        else
+            about.Show();
+    }
 }

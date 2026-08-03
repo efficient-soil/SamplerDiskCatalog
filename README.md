@@ -1,9 +1,12 @@
-# AKAI Disk Catalog
+# Sampler Disk Catalog
 
 A cross-platform (Windows + macOS) desktop app that scans a folder of AKAI S900/S1000/S3000
 sampler disk images (`.hfe` and `.img`) and builds a searchable, browsable catalog of every
 disk's volumes, samples, and programs — sample rate, duration, loop points, root key, tuning,
 and full program keygroup / velocity-zone maps.
+
+> Not affiliated with or endorsed by AKAI Professional. "AKAI" and the S900/S1000/S3000
+> model names are used only to describe the disk formats this app reads.
 
 ## Requirements
 

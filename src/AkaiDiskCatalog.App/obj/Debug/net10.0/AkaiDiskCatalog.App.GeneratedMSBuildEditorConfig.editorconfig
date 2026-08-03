@@ -34,5 +34,8 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 [/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.App/Styles/Theme.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
+[/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.App/Views/AboutWindow.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
 [/Users/petter/Dev/Privat/AkaiDiskCatalog/src/AkaiDiskCatalog.App/Views/MainWindow.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

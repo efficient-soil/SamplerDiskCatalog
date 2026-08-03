@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AkaiDiskCatalog.App.Views.AboutWindow"
+        Title="About Sampler Disk Catalog"
+        Width="360" SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="28" Spacing="6" HorizontalAlignment="Center">
+        <PathIcon Data="{StaticResource IconDisk}" Width="40" Height="40"
+                  Foreground="{DynamicResource AppAccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+        <TextBlock Text="Sampler Disk Catalog" Classes="appTitle" HorizontalAlignment="Center"/>
+        <TextBlock Text="S1000 / S900 diskette metadata browser" Classes="appSubtitle" HorizontalAlignment="Center"/>
+        <TextBlock x:Name="VersionText" Classes="subtle" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+        <TextBlock Text="MIT License" Classes="subtle" HorizontalAlignment="Center"/>
+        <TextBlock Text="Not affiliated with or endorsed by AKAI Professional." Classes="subtle"
+                   HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,0"/>
+    </StackPanel>
+</Window>
