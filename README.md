@@ -42,6 +42,21 @@ dotnet publish src/AkaiDiskCatalog.App -c Release -r win-x64 --self-contained
 
 The published app is in `src/AkaiDiskCatalog.App/bin/Release/net10.0/<rid>/publish/`.
 
+### macOS: making it a real double-clickable app
+
+`dotnet publish` alone produces a flat folder with a raw executable, not a `.app` you can
+double-click in Finder. Use the packaging script instead — it publishes and wraps the
+result into `dist/Sampler Disk Catalog.app`, ad-hoc signed so it'll actually launch:
+
+```bash
+scripts/package-macos.sh osx-arm64   # or osx-x64
+```
+
+The very first time you open it, right-click the app in Finder and choose **Open** (instead
+of double-clicking) — macOS will warn it's from an unidentified developer since it isn't
+notarized by an Apple Developer account; this bypasses that warning once, after which
+normal double-clicking works.
+
 ## How it works
 
 - **AkaiDiskCatalog.Core** — no external dependencies. Decodes `.hfe` bitstream images

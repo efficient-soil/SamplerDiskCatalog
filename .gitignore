@@ -21,3 +21,4 @@ Thumbs.db
 # .NET
 *.nupkg
 *.binlog
+dist/
