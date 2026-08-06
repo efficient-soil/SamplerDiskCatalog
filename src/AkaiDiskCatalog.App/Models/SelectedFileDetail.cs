@@ -18,6 +18,10 @@ public sealed class LoopRow
     public int At { get; }
     public int LengthSamples { get; }
     public int TimeMs { get; }
+
+    // AKAI S1000 convention: a loop time of 9999 is a sentinel meaning "HOLD"
+    // (loop indefinitely, no release-driven timing) rather than a literal 9999ms.
+    public string TimeDisplay => TimeMs == 9999 ? "HOLD" : TimeMs.ToString();
 }
 
 public sealed class VelocityZoneRow

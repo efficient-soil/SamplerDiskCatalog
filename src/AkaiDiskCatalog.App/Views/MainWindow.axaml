@@ -191,7 +191,7 @@
                                             <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="34" MinWidth="30"/>
                                             <DataGridTextColumn Header="At" Binding="{Binding At}" Width="90" MinWidth="40"/>
                                             <DataGridTextColumn Header="Length" Binding="{Binding LengthSamples}" Width="90" MinWidth="40"/>
-                                            <DataGridTextColumn Header="Time (ms)" Binding="{Binding TimeMs}" Width="100" MinWidth="40"/>
+                                            <DataGridTextColumn Header="Time (ms)" Binding="{Binding TimeDisplay}" Width="100" MinWidth="40"/>
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </StackPanel>
