@@ -71,44 +71,15 @@ public sealed class WaveformView : Control
         {
             double gap = 4;
             double laneHeight = (height - gap) / 2;
-            DrawLane(context, wavePen, left, 0, laneHeight, width);
-            DrawLane(context, wavePen, right!, laneHeight + gap, laneHeight, width);
+            WaveformRendering.DrawLane(context, wavePen, left, 0, laneHeight, width);
+            WaveformRendering.DrawLane(context, wavePen, right!, laneHeight + gap, laneHeight, width);
         }
         else
         {
-            DrawLane(context, wavePen, left, 0, height, width);
+            WaveformRendering.DrawLane(context, wavePen, left, 0, height, width);
         }
 
         DrawLoopMarkers(context, loopPen, left.Length, width, height);
-    }
-
-    private static void DrawLane(DrawingContext context, Pen pen, short[] samples, double top, double laneHeight, double width)
-    {
-        double mid = top + laneHeight / 2;
-        double scale = laneHeight / 2 / short.MaxValue;
-        int n = samples.Length;
-        int columns = (int)Math.Ceiling(width);
-
-        for (int x = 0; x < columns; x++)
-        {
-            int start = (int)((long)x * n / columns);
-            int end = (int)((long)(x + 1) * n / columns);
-            if (end <= start) end = Math.Min(start + 1, n);
-            if (start >= n) break;
-
-            short min = short.MaxValue, max = short.MinValue;
-            for (int i = start; i < end; i++)
-            {
-                short v = samples[i];
-                if (v < min) min = v;
-                if (v > max) max = v;
-            }
-
-            double y1 = mid - max * scale;
-            double y2 = mid - min * scale;
-            if (y2 - y1 < 1) { y1 -= 0.5; y2 += 0.5; } // keep near-silent columns visible as a thin line
-            context.DrawLine(pen, new Point(x + 0.5, y1), new Point(x + 0.5, y2));
-        }
     }
 
     private void DrawLoopMarkers(DrawingContext context, Pen pen, int sampleCount, double width, double height)

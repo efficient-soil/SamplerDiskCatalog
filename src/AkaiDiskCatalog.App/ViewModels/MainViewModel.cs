@@ -345,5 +345,22 @@ public partial class MainViewModel : ViewModelBase, IDisposable
             Results.Add(new FileRowViewModel(r, ToggleFavoriteCommand));
     }
 
+    /// <summary>Builds a loop editor for the currently selected sample, or null if none is
+    /// selected / its audio hasn't finished loading yet.</summary>
+    public LoopEditorViewModel? CreateLoopEditor()
+    {
+        if (SelectedFile is null || SampleAudio is null) return null;
+        return new LoopEditorViewModel(_scanner, SelectedFile.Source, SampleAudio);
+    }
+
+    /// <summary>Called by MainWindow's code-behind after a loop-editor dialog saves
+    /// successfully, mirroring the refresh done inline after a rename.</summary>
+    public void OnSampleLoopSaved(string newImagePath, string message)
+    {
+        RefreshDiskFilters();
+        RunSearch();
+        StatusText = message;
+    }
+
     public void Dispose() => _playback.Dispose();
 }

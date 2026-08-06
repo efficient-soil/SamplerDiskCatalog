@@ -150,7 +150,7 @@ public static class AkaiDiskWriter
         return patched;
     }
 
-    private static string BuildOutputPath(string sourcePath)
+    internal static string BuildOutputPath(string sourcePath)
     {
         string dir = Path.GetDirectoryName(sourcePath) ?? "";
         string baseName = Path.GetFileNameWithoutExtension(sourcePath);

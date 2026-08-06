@@ -1,0 +1,74 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AkaiDiskCatalog.App.ViewModels"
+        xmlns:controls="using:AkaiDiskCatalog.App.Controls"
+        xmlns:convAv="using:Avalonia.Data.Converters"
+        x:Class="AkaiDiskCatalog.App.Views.LoopEditorWindow"
+        x:DataType="vm:LoopEditorViewModel"
+        Title="{Binding Name, StringFormat='Edit Loop — {0}'}"
+        Icon="/Assets/AppIcon.ico"
+        Width="960" Height="580" MinWidth="700" MinHeight="440"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="18">
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+            <TextBlock Text="Zoom" VerticalAlignment="Center" Classes="subtle"/>
+            <Slider Minimum="1" Maximum="100" Value="{Binding ZoomFactor}" Width="220" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding ZoomFactor, StringFormat='{}{0:F0}x'}" VerticalAlignment="Center" Classes="subtle" Width="34"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <controls:LoopWaveformEditControl Width="{Binding EditorWidth}" Height="260"
+                LeftSamples="{Binding Left}" RightSamples="{Binding Right}"
+                LoopStart="{Binding LoopStart, Mode=TwoWay}" LoopEnd="{Binding LoopEnd, Mode=TwoWay}"/>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Spacing="10" Margin="0,12,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="24">
+                <TextBlock Text="{Binding LoopStart, StringFormat='Start: {0} samples'}"/>
+                <TextBlock Text="{Binding LoopStartMs, StringFormat='({0:F0} ms)'}" Classes="subtle"/>
+                <TextBlock Text="{Binding LoopEnd, StringFormat='End: {0} samples'}"/>
+                <TextBlock Text="{Binding LoopEndMs, StringFormat='({0:F0} ms)'}" Classes="subtle"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Playback:" VerticalAlignment="Center"/>
+                    <ComboBox SelectedItem="{Binding PlaybackMode}" VerticalAlignment="Center">
+                        <ComboBox.Items>
+                            <x:String>LOOP</x:String>
+                            <x:String>LOOP-NOT-RELEASE</x:String>
+                            <x:String>NOLOOP</x:String>
+                        </ComboBox.Items>
+                    </ComboBox>
+                </StackPanel>
+
+                <CheckBox Content="Hold (loop indefinitely)" IsChecked="{Binding IsHold}" VerticalAlignment="Center"/>
+
+                <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding !IsHold}">
+                    <TextBlock Text="Time (ms):" VerticalAlignment="Center"/>
+                    <NumericUpDown Value="{Binding TimeMsValue}" Minimum="0" Maximum="9998" Width="120" FormatString="0"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Classes="icon accent" Command="{Binding PlayPreviewCommand}" ToolTip.Tip="Play preview">
+                    <PathIcon Data="{StaticResource IconPlay}"/>
+                </Button>
+                <Button Classes="icon" Command="{Binding StopPreviewCommand}" ToolTip.Tip="Stop"
+                        IsVisible="{Binding IsPlayingPreview}">
+                    <PathIcon Data="{StaticResource IconStop}"/>
+                </Button>
+            </StackPanel>
+
+            <TextBlock Text="{Binding SaveMessage}" Classes="warningText" TextWrapping="Wrap"
+                       IsVisible="{Binding SaveMessage, Converter={x:Static convAv:ObjectConverters.IsNotNull}}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Content="Cancel" Click="Cancel_Click"/>
+            <Button Classes="accent" Content="Save" Command="{Binding SaveCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

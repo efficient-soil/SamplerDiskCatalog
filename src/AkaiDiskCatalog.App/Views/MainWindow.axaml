@@ -163,6 +163,9 @@
                                             IsVisible="{Binding IsPlayingSample}">
                                         <PathIcon Data="{StaticResource IconStop}"/>
                                     </Button>
+                                    <Button Classes="icon" Click="EditLoop_Click" ToolTip.Tip="Edit loop">
+                                        <PathIcon Data="{StaticResource IconEdit}"/>
+                                    </Button>
                                 </StackPanel>
                             </StackPanel>
 

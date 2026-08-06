@@ -31,4 +31,20 @@ public partial class MainWindow : Window
                 vm.ScanFolderCommand.Execute(null);
         }
     }
+
+    private async void EditLoop_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel vm) return;
+        var editorVm = vm.CreateLoopEditor();
+        if (editorVm is null) return;
+
+        var window = new LoopEditorWindow(editorVm);
+        await window.ShowDialog(this);
+
+        if (editorVm.NewImagePath is { } newPath)
+        {
+            string message = editorVm.SaveMessage ?? $"Loop updated - saved as {System.IO.Path.GetFileName(newPath)}.";
+            vm.OnSampleLoopSaved(newPath, message);
+        }
+    }
 }
