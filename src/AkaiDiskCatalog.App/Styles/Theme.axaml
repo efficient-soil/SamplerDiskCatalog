@@ -46,6 +46,9 @@
       <StreamGeometry x:Key="IconClose">M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12Z</StreamGeometry>
       <StreamGeometry x:Key="IconStar">M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z</StreamGeometry>
       <StreamGeometry x:Key="IconStarOutline">M22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.45,13.97L5.82,21L12,17.27L18.18,21L16.54,13.97M12,15.4L8.24,17.67L9.24,13.39L5.92,10.5L10.3,10.13L12,6.1L13.71,10.13L18.09,10.5L14.77,13.39L15.77,17.67Z</StreamGeometry>
+      <StreamGeometry x:Key="IconPlay">M8,5.14V19.14L19,12.14L8,5.14Z</StreamGeometry>
+      <StreamGeometry x:Key="IconStop">M18,18H6V6H18V18Z</StreamGeometry>
+      <StreamGeometry x:Key="IconLoop">M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z</StreamGeometry>
     </ResourceDictionary>
   </Styles.Resources>
 

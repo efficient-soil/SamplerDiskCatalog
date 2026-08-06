@@ -21,13 +21,18 @@ public partial class App : Application
             var dbPath = CatalogDatabase.DefaultDatabasePath();
             var conn = CatalogDatabase.OpenAndInitialize(dbPath);
             var repo = new CatalogRepository(conn);
+            var mainViewModel = new MainViewModel(repo);
 
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainViewModel(repo),
+                DataContext = mainViewModel,
             };
 
-            desktop.ShutdownRequested += (_, _) => conn.Dispose();
+            desktop.ShutdownRequested += (_, _) =>
+            {
+                mainViewModel.Dispose();
+                conn.Dispose();
+            };
         }
 
         base.OnFrameworkInitializationCompleted();

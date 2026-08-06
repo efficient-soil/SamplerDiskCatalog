@@ -5,18 +5,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AkaiDiskCatalog.App.Models;
+using AkaiDiskCatalog.App.Services;
 using AkaiDiskCatalog.Core.Filesystem;
+using AkaiDiskCatalog.Core.Filesystem.Audio;
 using AkaiDiskCatalog.Data;
+using AkaiDiskCatalog.Data.Models;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace AkaiDiskCatalog.App.ViewModels;
 
-public partial class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase, IDisposable
 {
     private readonly CatalogRepository _repo;
     private readonly ScanService _scanner;
+    private readonly SamplePlaybackService _playback = new();
     private CancellationTokenSource? _scanCts;
+    private CancellationTokenSource? _sampleLoadCts;
 
     public MainViewModel() : this(DesignTimeRepo()) { }
 
@@ -24,6 +30,7 @@ public partial class MainViewModel : ViewModelBase
     {
         _repo = repo;
         _scanner = new ScanService(repo);
+        _playback.PlaybackStopped += (_, _) => Dispatcher.UIThread.Post(() => IsPlayingSample = false);
         RefreshDiskFilters();
         RunSearch();
     }
@@ -52,6 +59,22 @@ public partial class MainViewModel : ViewModelBase
     [NotifyCanExecuteChangedFor(nameof(ConfirmRenameNameCommand))]
     private FileRowViewModel? _selectedFile;
     [ObservableProperty] private SelectedFileDetail? _detail;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(PlaySampleCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PlaySampleWithLoopCommand))]
+    private SampleAudioViewModel? _sampleAudio;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(PlaySampleCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PlaySampleWithLoopCommand))]
+    private bool _isLoadingSampleAudio;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(PlaySampleCommand))]
+    [NotifyCanExecuteChangedFor(nameof(PlaySampleWithLoopCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopSampleCommand))]
+    private bool _isPlayingSample;
 
     [ObservableProperty] private bool _isEditingName;
     [ObservableProperty]
@@ -89,6 +112,88 @@ public partial class MainViewModel : ViewModelBase
         Detail = value != null ? new SelectedFileDetail(value.Source) : null;
         IsEditingName = false;
         RenameMessage = null;
+
+        _playback.Stop();
+        IsPlayingSample = false;
+        _sampleLoadCts?.Cancel();
+        SampleAudio = null;
+
+        if (Detail?.IsSample == true)
+        {
+            var cts = new CancellationTokenSource();
+            _sampleLoadCts = cts;
+            _ = LoadSampleAudioAsync(value!.Source, cts);
+        }
+    }
+
+    private async Task LoadSampleAudioAsync(FileSearchResult src, CancellationTokenSource cts)
+    {
+        IsLoadingSampleAudio = true;
+        try
+        {
+            var request = new SampleAudioLoadRequest(src.DiskSourcePath, src.StartBlock, src.TypeByte);
+            var result = await Task.Run(() => AkaiSampleAudioLoader.Load(request), cts.Token);
+            if (cts.IsCancellationRequested || cts != _sampleLoadCts) return; // superseded by a newer selection
+
+            SampleAudio = result.Success ? new SampleAudioViewModel(result) : null;
+            if (!result.Success)
+                StatusText = $"Couldn't load sample audio: {result.ErrorDetail}";
+        }
+        catch (OperationCanceledException)
+        {
+            // superseded selection - ignore
+        }
+        finally
+        {
+            if (cts == _sampleLoadCts) IsLoadingSampleAudio = false;
+        }
+    }
+
+    private bool CanPlaySample() => SampleAudio != null && !IsPlayingSample && !IsLoadingSampleAudio;
+
+    [RelayCommand(CanExecute = nameof(CanPlaySample))]
+    private void PlaySample()
+    {
+        if (SampleAudio is null) return;
+        _playback.Play(BuildWav(SampleAudio, looped: false));
+        IsPlayingSample = true;
+    }
+
+    private bool CanPlaySampleWithLoop() => SampleAudio is { HasLoop: true } && !IsPlayingSample && !IsLoadingSampleAudio;
+
+    [RelayCommand(CanExecute = nameof(CanPlaySampleWithLoop))]
+    private void PlaySampleWithLoop()
+    {
+        if (SampleAudio is null) return;
+        _playback.Play(BuildWav(SampleAudio, looped: true));
+        IsPlayingSample = true;
+    }
+
+    private bool CanStopSample() => IsPlayingSample;
+
+    [RelayCommand(CanExecute = nameof(CanStopSample))]
+    private void StopSample()
+    {
+        _playback.Stop();
+        IsPlayingSample = false;
+    }
+
+    private static byte[] BuildWav(SampleAudioViewModel audio, bool looped)
+    {
+        short[] left = audio.Left;
+        short[]? right = audio.Right;
+
+        if (looped && audio.HasLoop)
+        {
+            var loop = audio.Loops[0];
+            left = LoopedPlaybackRenderer.RenderWithLoopRepeats(left, loop.At, loop.LengthSamples);
+            if (right != null)
+                right = LoopedPlaybackRenderer.RenderWithLoopRepeats(right, loop.At, loop.LengthSamples);
+        }
+
+        return audio.IsStereo
+            ? WavWriter.WriteStereoInterleaved(left, right!, audio.SampleRateHz)
+            : WavWriter.WriteMono(left, audio.SampleRateHz);
     }
 
     private bool CanBeginRenameName() => !IsScanning && !IsRenaming && CanRenameSelectedFile;
@@ -239,4 +344,6 @@ public partial class MainViewModel : ViewModelBase
         foreach (var r in _repo.Search(SearchText, SelectedKindFilter, SelectedDiskFilter))
             Results.Add(new FileRowViewModel(r, ToggleFavoriteCommand));
     }
+
+    public void Dispose() => _playback.Dispose();
 }

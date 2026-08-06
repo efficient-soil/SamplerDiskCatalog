@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:AkaiDiskCatalog.App.ViewModels"
         xmlns:models="using:AkaiDiskCatalog.App.Models"
+        xmlns:controls="using:AkaiDiskCatalog.App.Controls"
         xmlns:conv="using:AkaiDiskCatalog.App.Converters"
         xmlns:convAv="using:Avalonia.Data.Converters"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -113,7 +114,7 @@
                     <GridSplitter Grid.Column="1" Width="12" Background="Transparent"/>
 
                     <Border Grid.Column="2" Classes="card" Padding="0">
-                        <Grid RowDefinitions="Auto,Auto,*">
+                        <Grid RowDefinitions="Auto,Auto,Auto,*">
                             <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto,Auto" Margin="14,14,14,0"
                                   IsVisible="{Binding SelectedFile, Converter={x:Static convAv:ObjectConverters.IsNotNull}}">
                                 <TextBlock Grid.Column="0" Text="{Binding SelectedFile.Name}" Classes="detailTitle"
@@ -138,7 +139,34 @@
                                        Margin="14,6,14,0"
                                        IsVisible="{Binding RenameMessage, Converter={x:Static convAv:ObjectConverters.IsNotNull}}"/>
 
-                            <Panel Grid.Row="2">
+                            <StackPanel Grid.Row="2" Margin="14,10,14,0" Spacing="6" IsVisible="{Binding Detail.IsSample}">
+                                <TextBlock Text="Waveform" Classes="sectionHeader"/>
+                                <TextBlock Text="Loading audio..." Classes="subtle" FontStyle="Italic"
+                                           IsVisible="{Binding IsLoadingSampleAudio}"/>
+                                <controls:WaveformView Height="120"
+                                    LeftSamples="{Binding SampleAudio.Left}"
+                                    RightSamples="{Binding SampleAudio.Right}"
+                                    Loops="{Binding SampleAudio.Loops}"
+                                    IsVisible="{Binding SampleAudio, Converter={x:Static convAv:ObjectConverters.IsNotNull}}"/>
+                                <TextBlock Text="{Binding SampleAudio.PartnerName, StringFormat='Stereo pair with: {0}'}" Classes="subtle"
+                                           IsVisible="{Binding SampleAudio.IsStereo}"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8"
+                                            IsVisible="{Binding SampleAudio, Converter={x:Static convAv:ObjectConverters.IsNotNull}}">
+                                    <Button Classes="icon accent" Command="{Binding PlaySampleCommand}" ToolTip.Tip="Play">
+                                        <PathIcon Data="{StaticResource IconPlay}"/>
+                                    </Button>
+                                    <Button Classes="icon" Command="{Binding PlaySampleWithLoopCommand}" ToolTip.Tip="Play with loop"
+                                            IsVisible="{Binding SampleAudio.HasLoop}">
+                                        <PathIcon Data="{StaticResource IconLoop}"/>
+                                    </Button>
+                                    <Button Classes="icon" Command="{Binding StopSampleCommand}" ToolTip.Tip="Stop"
+                                            IsVisible="{Binding IsPlayingSample}">
+                                        <PathIcon Data="{StaticResource IconStop}"/>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Panel Grid.Row="3">
                             <TextBlock Text="Select a file to see its details" Classes="subtle"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"
                                        IsVisible="{Binding SelectedFile, Converter={x:Static convAv:ObjectConverters.IsNull}}"/>
