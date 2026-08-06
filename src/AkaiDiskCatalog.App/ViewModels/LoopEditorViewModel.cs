@@ -20,8 +20,6 @@ namespace AkaiDiskCatalog.App.ViewModels;
 /// </summary>
 public partial class LoopEditorViewModel : ObservableObject, IDisposable
 {
-    private const double BaseWidth = 900;
-
     private readonly ScanService _scanner;
     private readonly FileSearchResult _source;
     private readonly SamplePlaybackService _playback = new();
@@ -82,14 +80,15 @@ public partial class LoopEditorViewModel : ObservableObject, IDisposable
     public double LoopStartMs => SampleRateHz > 0 ? LoopStart / (double)SampleRateHz * 1000 : 0;
     public double LoopEndMs => SampleRateHz > 0 ? LoopEnd / (double)SampleRateHz * 1000 : 0;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(EditorWidth))]
-    private double _zoomFactor = 1;
-
-    public double EditorWidth => BaseWidth * ZoomFactor;
+    [ObservableProperty] private double _zoomFactor = 1;
 
     [ObservableProperty] private bool _isHold;
     [ObservableProperty] private int _timeMsValue;
+
+    /// <summary>Preview-only varispeed pitch offset in semitones - never written when saving.
+    /// Applied by scaling the preview WAV's declared sample rate, so pitch and playback speed
+    /// change together (like a turntable pitch fader), not a duration-preserving pitch shift.</summary>
+    [ObservableProperty] private int _pitchSemitones;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
@@ -111,7 +110,7 @@ public partial class LoopEditorViewModel : ObservableObject, IDisposable
     /// and refreshes the main file list when this becomes set.</summary>
     [ObservableProperty] private string? _newImagePath;
 
-    private bool CanPlayPreview() => !IsPlayingPreview && PlaybackMode != "NOLOOP" && LoopStart < LoopEnd;
+    private bool CanPlayPreview() => !IsPlayingPreview && (PlaybackMode == "NOLOOP" || LoopStart < LoopEnd);
 
     [RelayCommand(CanExecute = nameof(CanPlayPreview))]
     private void PlayPreview()
@@ -131,13 +130,53 @@ public partial class LoopEditorViewModel : ObservableObject, IDisposable
 
     private byte[] BuildPreviewWav()
     {
-        short[] left = LoopedPlaybackRenderer.RenderWithLoopRepeats(Left, LoopEnd, LoopEnd - LoopStart);
+        int rate = ComputePreviewRate();
+
+        if (PlaybackMode == "NOLOOP")
+        {
+            return IsStereo && Right is { } r
+                ? WavWriter.WriteStereoInterleaved(Left, r, rate)
+                : WavWriter.WriteMono(Left, rate);
+        }
+
+        int extraRepeats = ComputeExtraRepeats();
+        short[] left = LoopedPlaybackRenderer.RenderWithLoopRepeats(Left, LoopEnd, LoopEnd - LoopStart, extraRepeats);
         if (IsStereo && Right is { } right)
         {
-            short[] rightRendered = LoopedPlaybackRenderer.RenderWithLoopRepeats(right, LoopEnd, LoopEnd - LoopStart);
-            return WavWriter.WriteStereoInterleaved(left, rightRendered, SampleRateHz);
+            short[] rightRendered = LoopedPlaybackRenderer.RenderWithLoopRepeats(right, LoopEnd, LoopEnd - LoopStart, extraRepeats);
+            return WavWriter.WriteStereoInterleaved(left, rightRendered, rate);
         }
-        return WavWriter.WriteMono(left, SampleRateHz);
+        return WavWriter.WriteMono(left, rate);
+    }
+
+    /// <summary>Varispeed: pitching up/down by scaling the declared WAV sample rate, so the OS
+    /// player plays the same PCM data faster/slower - pitch and duration change together, same
+    /// as a turntable pitch fader (no time-stretch DSP).</summary>
+    private int ComputePreviewRate() =>
+        Math.Max(1, (int)Math.Round(SampleRateHz * Math.Pow(2, PitchSemitones / 12.0)));
+
+    /// <summary>
+    /// This app's playback has no real crossfade/DSP engine, so it can't reproduce whatever a
+    /// real S1000 actually does with a non-HOLD loop time - but it can at least make the
+    /// "Hold" checkbox and "Time (ms)" field audibly *do something* in the preview: Hold loops
+    /// a fixed bounded number of times (same convention used elsewhere in this app), while a
+    /// finite time loops for approximately that many milliseconds and then stops on its own.
+    /// The exact byte value is still written to the saved sample either way for real hardware
+    /// or other tools to interpret.
+    /// </summary>
+    private int ComputeExtraRepeats()
+    {
+        const int holdPreviewRepeats = 8;
+        const int maxRepeats = 2000; // safety cap against pathologically short loop regions
+
+        if (IsHold) return holdPreviewRepeats;
+
+        int loopLength = LoopEnd - LoopStart;
+        if (loopLength <= 0 || SampleRateHz <= 0) return 0;
+
+        double loopDurationMs = loopLength / (double)SampleRateHz * 1000;
+        int repeats = (int)Math.Round(TimeMsValue / loopDurationMs);
+        return Math.Clamp(repeats, 0, maxRepeats);
     }
 
     private bool CanSave() => !IsSaving && (PlaybackMode == "NOLOOP" || LoopStart < LoopEnd);
